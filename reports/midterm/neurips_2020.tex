@@ -1,0 +1,109 @@
+\documentclass{article}
+\usepackage[preprint,nonatbib]{neurips_2020}
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}    
+\usepackage{hyperref}       
+\usepackage{url}            
+\usepackage{booktabs}       
+\usepackage{amsfonts}       
+\usepackage{nicefrac}       
+\usepackage{microtype}      
+\usepackage{titlesec}
+\usepackage{enumitem}
+\title{Federated GANs: A Comparative Study of Privacy and Performance}
+
+\author{%
+  Karl Hernandez\\
+  \texttt{kphernan@ucsd.edu}\\
+  \and
+  \textbf{Aneesh Ojha}\\
+  \texttt{anojha@ucsd.edu}\\
+  \and
+  \textbf{Yingjieh Xia}\\
+  \texttt{yix050@ucsd.edu}\\
+}
+
+\begin{document}
+
+\maketitle
+\vspace{-2em}
+\section{Research Problem}
+
+Modern Generative Adversarial Networks (GANs) require large and diverse datasets to generate high-quality, representative outputs. However, when data involves sensitive information—such as medical or financial records—centralized training poses serious privacy risks. [10]  Federated Learning (FL) enables collaborative model training across multiple data holders without sharing raw data, offering a promising privacy-preserving alternative. FL as it relates to GANs presents unique challenges in maintaining generation quality without centralized access. This project investigates whether federated GANs can deliver both strong privacy guarantees and competitive generative performance compared to centralized GANs.
+
+\section{Importance of the Problem}
+As machine learning becomes increasingly integrated into domains such as healthcare, finance, and personal data analytics, concerns about data privacy have become central. Traditional centralized training methods require aggregating data into a single location, which can expose sensitive information and violate legal or ethical guidelines.
+
+FL offers a privacy-preserving alternative by keeping data decentralized across clients, training models locally and sharing only model updates. When combined with GANs, FL holds promise for generating realistic synthetic data while respecting privacy constraints. This is particularly valuable in domains where collecting large, diverse datasets is difficult due to privacy risks or data-sharing limitations.
+
+However, the effectiveness of federated GANs (FedGANs) — in terms of both generation quality and privacy guarantees — remains an open question. Without centralized access to the full dataset, FedGANs can struggle to converge or represent the global data distribution accurately. Moreover, few works directly compare federated and non-federated GANs on realistic, privacy-sensitive tasks, especially with novel datasets reflective of healthcare or financial contexts.
+
+Studying the trade-offs between federated and centralized GANs offers insights into:
+\begin{itemize}[itemsep=0.5ex, topsep=0.5ex, parsep=0pt, partopsep=0pt]
+  \item The privacy-performance tension in generative models
+  \item Practical pathways to synthetic data generation for sensitive domains
+  \item How privacy-preserving techniques affect the utility of generated data.
+\end{itemize}
+
+\section{Existing Work and Limitations}
+
+Recent efforts have explored multiple strategies for embedding GANs[2] within decentralized training frameworks[3], yielding a diverse set of FedGAN architectures. MDGAN[1] presented the idea of a single, centralized generator broadcasting to clients, each hosting its own discriminator; this split allows the generator to benefit from varied local feedback while keeping raw data private. Building on that, FedGAN[4] adopts fully local generator–discriminator pairs and periodically synchronizes their parameters via a central server, striking a balance between model diversity and convergence stability.To support privacy guarantees, follow-up work has introduced formal protections. DPFedAVGGAN[5] integrates user-level differential privacy into the federated averaging step, adding calibrated noise to model updates so that sensitive training examples cannot be reverse‑engineered. Private FL‑GAN[6] further refines this by embedding privacy controls directly into the GAN training loop, ensuring that both generator and discriminator updates adhere to a prescribed privacy budget.
+
+Despite these new architectures, several gaps remain. Most studies focus on image data, with limited application to tabular[9] or time-series domains. While DP is commonly used, empirical evaluations under privacy attacks remain sparse. Scalability in cross-device settings is hindered by communication overhead, and handling non-IID data remains challenging. Methods like FeGAN[7] and Universal Aggregation[8] attempt to address heterogeneity, but broader validation and benchmarking are still lacking.
+
+\section{Proposed Solution}
+
+To investigate the trade-off between generative performance and privacy in federated learning, we will train and evaluate two models: a centralized GAN and a federated GAN, using existing, well-established GAN architectures. Both models will be trained on the same novel dataset, chosen specifically for its relevance to privacy-sensitive applications.
+
+Rather than developing new architectures, we aim to isolate the effect of the training paradigm (federated vs. centralized) by keeping the model design consistent. We will assess the models using standard generative metrics such as Frechet Inception Distance (FID) for image realism and Inception Score (IS) for class diversity.
+
+In the federated setup, we will explore various aggregation strategies—including FedAvg, FedProx, and PreFed-GAN—to evaluate their impact on both performance and privacy. Additionally, we plan to evaluate each model’s robustness to privacy attacks (e.g., membership inference) to better understand the privacy-preserving capabilities of each training approach.
+\section{Novelty and Significance}
+Our contributions include:
+\begin{itemize}
+  \item Use of an existing, underutilized dataset for evaluating generative models in privacy-sensitive settings.
+  \item Direct empirical comparison of federated and non-federated (centralized) GANs under identical experimental conditions.
+  \item Focused assessment of privacy-preserving qualities of both model types, including vulnerability to inference attacks.
+  \item Quantitative evaluation of trade-offs between privacy and generative performance.
+\end{itemize}
+This study will provide practical insights into how well federated approaches preserve privacy and it's affect on model performance which can inform appropriate deployment choices for different applications.
+
+\section{Tentative Timeline}
+
+\begin{itemize}
+    \item Weeks 1–2: Review related work and refine understanding of architectures
+    \item Week 3: Develop pipeline and establish FL and non-FL baselines
+    \item Weeks 4–5: Implement Federated GAN and train Centralized GAN
+    \item Week 6: Conduct privacy attacks and analyze results
+    \item Week 7: Write and finalize documentation and report
+\end{itemize}
+
+
+\section*{References}
+
+{
+\small
+[1] McMahan, B., Moore, E., Ramage, D., \& Hampson, S.\ (2017) Communication-efficient learning of deep networks from decentralized data. In AISTATS 2017, {\it Proceedings of the 20th International Conference on Artificial Intelligence and Statistics}, Vol.\ 54.
+
+[2] Goodfellow, I., Pouget-Abadie, J., Mirza, M., Xu, B., Warde-Farley, D., Ozair, S., Courville, A., \& Bengio, Y.\ (2014) Generative adversarial nets. In Z.\ Ghahramani, M.\ Welling, C.\ Cortes, N.D.\ Lawrence, \& K.Q.\ Weinberger (eds.), {\it Advances in Neural Information Processing Systems 27}, pp.\ 2672--2680. Cambridge, MA: MIT Press.
+
+[3] Hardy, Q., Le Merrer, E., \& Trédan, G.\ (2019) MD-GAN: Multi-discriminator generative adversarial networks for distributed datasets. {\it arXiv preprint arXiv:1911.03860}.
+
+[4] Rasouli, A., Hashemi, S.A., Rouhani, B., Riazi, M.S., \& Koushanfar, F.\ (2020) FedGAN: Federated generative adversarial networks for distributed data. In {\it Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops}, pp.\ 1--10.
+
+[5] Augenstein, S., McMahan, H.B., Ramage, D., \& Ramaswamy, K.\ (2019) Differentially private federated learning for text classification. {\it arXiv preprint arXiv:2004.11791}.
+
+[6] Xin, Y., Liu, D., Ma, J., Wang, W., \& Tao, D.\ (2020) Private federated generative adversarial networks. In {\it Proceedings of the AAAI Conference on Artificial Intelligence}, Vol.\ 34, No.\ 4, pp.\ 7163--7170.
+
+[7] Guerraoui, R., Rouault, S., Tazi, I., \& Vuilleumier, P.\ (2020) Fegan: Federated generative model learning. {\it arXiv preprint arXiv:2006.07219}.
+
+[8] Zhang, H., Wu, X., Liu, J., Chang, S., \& Han, S.\ (2021) A universal aggregation framework for federated learning. In M.\ Ranzato, A.\ Beygelzimer, Y.\ Dauphin, P.S.\ Liang, \& J.\ Wortman Vaughan (eds.), {\it Advances in Neural Information Processing Systems 34}, pp.\ 17390--17401. Red Hook, NY: Curran Associates.
+
+[9] Maliakel, T., Rajendran, J., Lalitha, A., \& Krishnan, R.\ (2024) FLIGAN: Federated Learning of Imbalanced Tabular Data Using GANs. {\it arXiv preprint arXiv:2403.08744}.
+
+[10] A. Golda et al., (2024) Privacy and Security Concerns in Generative AI: A Comprehensive Survey,". In \it{IEEE Access, vol. 12, pp. 48126-48144}
+}
+
+
+
+\end{document}

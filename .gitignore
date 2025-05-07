@@ -1,0 +1,41 @@
+# LaTeX temporary files
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.bbl
+*.bcf
+*.blg
+*.run.xml
+
+# PDF output (optional - you may want to track final PDFs)
+*.pdf
+
+# LaTeX Beamer
+*.nav
+*.pre
+*.snm
+*.vrb
+
+# BibTeX
+*-blx.bib
+*.bib.bak
+*.bib.sav
+
+# Editor files
+.vscode/
+*~
+*.backup
+*.swp
+*.swo
+.DS_Store
+
+# Build directories
+_build/
+build/
