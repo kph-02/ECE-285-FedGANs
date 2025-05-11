@@ -66,14 +66,14 @@ In the federated setup, we will explore various aggregation strategies—includi
 The original GAN[?] consists of two networks: Generator and Discriminator, and both G and D could be a non-linear mapping function, such as a multi-layer perceptron. Generator G captures the data distribution, while discriminator D estimates the probability that a sample came from the training data rather than G.
 The update function for $D$ and $G$ is:
 \[
-\min_{G} \max_{D} V(D,G) = E_{x \sim p_{\text{data}}(x)} [\log D(x)] + E_{z \sim p_{z}(z)} [\log (1-D(G(z)))]
+\min_{G} \max_{D} V(D,G) = \mathbb{E}_{x \sim p_{\text{data}}(x)} [\log D(x)] + \mathbb{E}_{z \sim p_{z}(z)} [\log (1-D(G(z)))]
 \]
 
 
 \subsection{Federated GAN}
 
 \subsubsection{Architecture - Universal Aggregation GAN (UA GAN)}
-Universal Aggregation GAN[?] proposed a model which has one central generator G, and multiple local and privately hosted discriminators. Each local discriminator is only trained on its local data and help the generator to update. Each private data might contains both common distributions and different distributions (non-iid), which might be a lot. The challenge for the generator is to learn the distribution that represent all the private data given separate discriminators.
+Universal Aggregation GAN[?] proposed a model which has one central generator G, and multiple local and privately hosted discriminators. Each local discriminator is only trained on its local data and help the generator to update. Each private data may contain both common distributions and different distributions (non-iid), which might be a lot. The challenge for the generator is to learn the distribution that represent all the private data given separate discriminators.
 
 \subsubsection{Goal}
 Suppose there are $K$ entities holding K private datasets $D_1, ..., D_K$, with size $n_1, ..., n_K$. The total data size $n = \sum_{j=1}^{K} n_j$.
@@ -87,18 +87,18 @@ where $p_j(x)$ is the distribution from the j-th local dataset $D_j$, and the we
 To aggregate the information from the local discriminators, an unbiased centralized discriminator is proposed, with its odds value approximates that of the mixture of local discriminators. By aggregating gradient from local discriminators based on the odds value of the central value, the model can learn the desired mixture of local distributions.
 
 \subsubsection{Local Discriminator}
-For each local discriminator $D_j$, they have access to their own data from distribution $p_j(x)$. Thus, the goal of $D_j$ is to minimize the cross entropy loss:
+Each local discriminator $D_j$ has access to its own data from distribution $p_j(x)$ aiming to minimize the cross entropy loss:
 \[
-\max_{D_j} V(D_j,G) = E_{x \sim p_{j}(x)} [\log D_j(x)] + E_{z \sim p_{z}(z)} [\log (1-D_j(G(z)))]
+\max_{D_j} V(D_j,G) = \mathbb{E}_{x \sim p_{j}(x)} [\log D_j(x)] + \mathbb{E}_{z \sim p_{z}(z)} [\log (1-D_j(G(z)))]
 \]
 
 
 \subsubsection{Centralized Discriminator and Generator}
 The main idea of universal aggregation is to simulate a centralized discriminator $D_{ua}$ which behaves like the mixture of all local discriminators in terms of odds value, then use this $D_{ua}$ to train the centralized $G$, like a classical GAN.
 
-Definition of odds value: Given a probability $\phi \in [0, 1)$, its odds value is $\Phi(\phi) = \phi / (1-\phi)$. And $\phi = \Phi(\phi) / (1+\Phi(\phi))$.
+Definition of odds value: Given a probability $\phi \in [0, 1)$, its odds value is $\Phi(\phi) = \phi / (1-\phi)$, where $\phi = \Phi(\phi) / (1+\Phi(\phi))$.
 
-We can then get the odds value of the centralized discriminator by summing up the weighted odds of each local $D_j$:
+We can then get the odds value of the centralized discriminator by summing up the weighted odds value of each local $D_j$:
 \[
 \Phi(D_{ua}(x)) = \sum_{j=1}^K \pi_j \Phi(D_j(x))
 \]
@@ -110,7 +110,7 @@ D_{ua}(x) = \frac{\Phi(D_{ua}(x))}{1+\Phi(D_{ua}(x))}
 
 Once we get $D_{ua}(x)$, we can train the centralized generator $G$ by minimizing the loss:
 \[
-\min_{G} V(D_{ua},G) = E_{x \sim p(x)} [\log D_{ua}(x)] + E_{z \sim p_{z}(z)} [\log (1-D_{ua}(G(z)))]
+\min_{G} V(D_{ua},G) = \mathbb{E}_{x \sim p(x)} [\log D_{ua}(x)] + \mathbb{E}_{z \sim p_{z}(z)} [\log (1-D_{ua}(G(z)))]
 \]
 
 The reason to use odds value instead of average value of every local discriminator is that from the original GAN paper, it has been shown that a optimal $D^*$ given a data distribution $p_{\text{data}}(x)$ and a fixed generator distribution $p_{g}(x)$ satisfies $D^*{(x)} = p_{\text{data}}(x) / (p_{\text{data}}(x) + p_{g}(x))$. Thus, the centralized $D_{ua}$ can be optimal only when using odds value, and only when all the local $D_j$ are optimal.
