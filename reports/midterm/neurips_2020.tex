@@ -10,6 +10,7 @@
 \usepackage{microtype}      
 \usepackage{titlesec}
 \usepackage{enumitem}
+\usepackage{amsmath}
 \title{Federated GANs: A Comparative Study of Privacy and Performance}
 
 \author{%
@@ -137,6 +138,36 @@ To adapt UA to use conditional GAN, the odds value of $D_{ua}$ needs to be chang
 The $D_{ua}(x|y)$, and the update of $G$ and $D_j$ need to be adjusted accordingly.
 
 
+\section{Evaluation and Metrics}
+In our evaluation framework, we employ a \textbf{membership-inference attack (MIA)} to quantify the extent to which a trained generator $G$ inadvertently memorizes and leaks information about its training set $\mathcal{D}_{\mathrm{train}}$.At its core, the membership-inference metric evaluates a model's tendency to ``memorize'' individual training samples by measuring how distinguishable those samples are from unseen data. When an adversary achieves a high true-positive rate (TPR) at the same false-positive rate (FPR) (or, equivalently, a large $\lvert\mathrm{TPR} - \mathrm{FPR}\rvert$ advantage), it implies that the generator's outputs for training examples lie in regions of the data manifold that are noticeably different—either in likelihood under the discriminator or in some other feature space—than outputs for non-training examples. In other words, memorization creates ``fingerprints'' that the adversary can exploit. Conversely, if the model generalizes well and does not overfit, its behavior on training and non-training samples becomes statistically indistinguishable, driving the membership advantage toward zero ($\mathrm{Adv}_{\mathcal{A}}\approx 0$) and the ROC AUC toward 0.5—equivalent to a random guess. Thus, lower membership-inference performance directly corresponds to stronger empirical privacy protection.\\
+Concretely, an adversary $\mathcal{A}$ is given a sample $x$ (either drawn from $\mathcal{D}_{\mathrm{train}}$ or from an unseen hold-out set $\mathcal{D}_{\mathrm{test}}$) and produces a binary decision
+\begin{align}
+m = \mathcal{A}(x) \;=\; \begin{cases} 
+1, & \text{if } \mathcal{A}\text{ judges }x\in \mathcal{D}_{\mathrm{train}},\\ 
+0, & \text{otherwise}. 
+\end{cases}
+\end{align}
+
+We measure privacy leakage in terms of the adversary's true-positive rate (TPR) and false-positive rate (FPR):
+\begin{align}
+\mathrm{TPR} \;=\; \Pr\bigl(\mathcal{A}(x)=1 \mid x\in\mathcal{D}_{\mathrm{train}}\bigr), \quad \mathrm{FPR} \;=\; \Pr\bigl(\mathcal{A}(x)=1 \mid x\in\mathcal{D}_{\mathrm{test}}\bigr).
+\end{align}
+
+From these we derive the \textbf{membership advantage},
+\begin{align}
+\mathrm{Adv}_{\mathcal{A}}(G) \;=\; \bigl|\mathrm{TPR} - \mathrm{FPR}\bigr|,
+\end{align}
+which captures the adversary's maximal distinguishing power. We further compute the overall attack accuracy
+\begin{align}
+\mathrm{Acc}_{\mathcal{A}} \;=\; \frac{\mathrm{TP} + \mathrm{TN}}{\mathrm{TP} + \mathrm{TN} + \mathrm{FP} + \mathrm{FN}}
+\end{align}
+and the area under the ROC curve (AUC), denoted $\mathrm{AUC}_{\mathcal{A}}$. A higher $\mathrm{Adv}$, $\mathrm{Acc}$, or $\mathrm{AUC}$ indicates stronger privacy leakage, since the adversary can more reliably infer whether any given sample was used during training.
+
+To compare FedGAN against a conventionally trained Non-Federated GAN, we apply the identical MIA pipeline—same adversary architecture, training-set sizes, and decision thresholds—to each generator. Because FedGAN's updates are computed and aggregated across multiple clients without ever centralizing raw data, it is hypothesized to memorize less about any individual client's samples. Accordingly, we expect
+\begin{align}
+\mathrm{Adv}_{\mathcal{A}}\bigl(G_{\mathrm{Fed}}\bigr)\;<\;\mathrm{Adv}_{\mathcal{A}}\bigl(G_{\mathrm{Normal}}\bigr), \quad \mathrm{AUC}_{\mathcal{A}}\bigl(G_{\mathrm{Fed}}\bigr)\;<\;\mathrm{AUC}_{\mathcal{A}}\bigl(G_{\mathrm{Normal}}\bigr),
+\end{align}
+with corresponding decreases in $\mathrm{TPR}-\mathrm{FPR}$ and peak ROC performance. By reporting these metrics side-by-side—together with confidence intervals over multiple random seeds—we will obtain a principled, quantitative assessment of how federated training mitigates membership leakage, thereby providing strong empirical evidence that FedGAN offers enhanced privacy guarantees relative to Non-Federated GAN.
 
 \section{Novelty and Significance}
 Our contributions include:
