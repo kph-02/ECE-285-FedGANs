@@ -66,7 +66,7 @@ The HAM10000 (“Human Against Machine with 10,000 dermatoscopic images”) data
 \section{Method}
 
 \subsection{GAN}
-The original GAN[?] consists of two networks: Generator and Discriminator, and both G and D could be a non-linear mapping function, such as a multi-layer perceptron. Generator G captures the data distribution, while discriminator D estimates the probability that a sample came from the training data rather than G.
+The original GAN[2] consists of two networks: Generator and Discriminator, and both G and D could be a non-linear mapping function, such as a multi-layer perceptron. Generator G captures the data distribution, while discriminator D estimates the probability that a sample came from the training data rather than G.
 The update function for $D$ and $G$ is:
 \[
 \min_{G} \max_{D} V(D,G) = \mathbb{E}_{x \sim p_{\text{data}}(x)} [\log D(x)] + \mathbb{E}_{z \sim p_{z}(z)} [\log (1-D(G(z)))]
@@ -76,7 +76,7 @@ The update function for $D$ and $G$ is:
 \subsection{Federated GAN}
 
 \subsubsection{Architecture - Universal Aggregation GAN (UA GAN)}
-Universal Aggregation GAN[?] proposed a model which has one central generator G, and multiple local and privately hosted discriminators. Each local discriminator is only trained on its local data and help the generator to update. Each private data may contain both common distributions and different distributions (non-iid), which might be a lot. The challenge for the generator is to learn the distribution that represent all the private data given separate discriminators.
+Universal Aggregation GAN[11] proposed a model which has one central generator G, and multiple local and privately hosted discriminators. Each local discriminator is only trained on its local data and help the generator to update. Each private data may contain both common distributions and different distributions (non-iid), which might be a lot. The challenge for the generator is to learn the distribution that represent all the private data given separate discriminators.
 
 \subsubsection{Goal}
 Suppose there are $K$ entities holding K private datasets $D_1, ..., D_K$, with size $n_1, ..., n_K$. The total data size $n = \sum_{j=1}^{K} n_j$.
@@ -126,7 +126,7 @@ where $g^*$ equals to the true distribution.
 
 
 \subsubsection{Universal Aggregation for Conditional GAN}
-A conditional GAN learns the joint distribution of $p(x, y)$, where x represents an image or a vectorized data, and y is an auxiliary variable to control the mode of generated data (e.g. the class label of an image/data). The target mixture distribution then becomes:
+A conditional GAN[12] learns the joint distribution of $p(x, y)$, where x represents an image or a vectorized data, and y is an auxiliary variable to control the mode of generated data (e.g. the class label of an image/data). The target mixture distribution then becomes:
 \[
 p(x) = \sum_{j} \pi_j \omega_j(y) p_j(x,y)
 \]
@@ -213,7 +213,12 @@ This study will provide practical insights into how well federated approaches pr
 [9] Maliakel, T., Rajendran, J., Lalitha, A., \& Krishnan, R.\ (2024) FLIGAN: Federated Learning of Imbalanced Tabular Data Using GANs. {\it arXiv preprint arXiv:2403.08744}.
 
 [10] A. Golda et al., (2024) Privacy and Security Concerns in Generative AI: A Comprehensive Survey,". In \it{IEEE Access, vol. 12, pp. 48126-48144}
+
+[11] Zhang, Y., Qu, H., Chang, Q., Liu, H., Metaxas, D., & Chen, C. (2021). Training federated GANs with theoretical guarantees: A universal aggregation approach. arXiv preprint arXiv:2102.04655.
+
+[12] Mirza, M., & Osindero, S. (2014). Conditional generative adversarial nets. arXiv preprint arXiv:1411.1784.
 }
+
 
 
 
