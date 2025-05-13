@@ -28,42 +28,32 @@
 
 \maketitle
 \vspace{-2em}
-\section{Research Problem}
 
-Modern Generative Adversarial Networks (GANs) require large and diverse datasets to generate high-quality, representative outputs. However, when data involves sensitive information—such as medical or financial records—centralized training poses serious privacy risks. [10]  Federated Learning (FL) enables collaborative model training across multiple data holders without sharing raw data, offering a promising privacy-preserving alternative. FL as it relates to GANs presents unique challenges in maintaining generation quality without centralized access. This project investigates whether federated GANs can deliver both strong privacy guarantees and competitive generative performance compared to centralized GANs.
+\section{Introduction}
+Generative Adversarial Networks (GANs) have demonstrated remarkable ability to synthesize high‑quality, realistic data when trained on large, centralized datasets. However, in domains such as healthcare and finance—where data often contains sensitive personal information—centralized training raises serious privacy and regulatory concerns\,[10]. Federated Learning (FL) offers a privacy‑preserving alternative by keeping raw data on client devices and sharing only model updates, yet applying FL to GANs (FedGANs) introduces unique challenges in convergence, communication, and accurately capturing a global, non‑IID data distribution without direct access to all samples.  
 
-\section{Importance of the Problem}
-As machine learning becomes increasingly integrated into domains such as healthcare, finance, and personal data analytics, concerns about data privacy have become central. Traditional centralized training methods require aggregating data into a single location, which can expose sensitive information and violate legal or ethical guidelines.
+Despite this potential, the effectiveness of FedGANs remains an open question: can they match centralized GANs in generative performance while providing stronger empirical privacy guarantees? To date, few studies have performed direct, controlled comparisons of federated and non‑federated GANs on realistic, privacy‑sensitive datasets—particularly in medical imaging or financial contexts where data heterogeneity and strict governance further complicate model training.  
 
-FL offers a privacy-preserving alternative by keeping data decentralized across clients, training models locally and sharing only model updates. When combined with GANs, FL holds promise for generating realistic synthetic data while respecting privacy constraints. This is particularly valuable in domains where collecting large, diverse datasets is difficult due to privacy risks or data-sharing limitations.
+In this work, we leverage the HAM10000 dermatoscopic image dataset—partitioned by acquisition site to simulate clinical heterogeneity—to conduct an empirical comparison of a centralized GAN versus a FedGAN under identical architectural and evaluation protocols. We evaluate generative quality using Fréchet Inception Distance (FID) and Inception Score (IS), and quantify privacy leakage through membership‑inference attacks, measuring true‑ and false‑positive rates, overall attack accuracy, and ROC AUC.  
 
-However, the effectiveness of federated GANs (FedGANs) — in terms of both generation quality and privacy guarantees — remains an open question. Without centralized access to the full dataset, FedGANs can struggle to converge or represent the global data distribution accurately. Moreover, few works directly compare federated and non-federated GANs on realistic, privacy-sensitive tasks, especially with novel datasets reflective of healthcare or financial contexts.
-
-Studying the trade-offs between federated and centralized GANs offers insights into:
-\begin{itemize}[itemsep=0.5ex, topsep=0.5ex, parsep=0pt, partopsep=0pt]
-  \item The privacy-performance tension in generative models
-  \item Practical pathways to synthetic data generation for sensitive domains
-  \item How privacy-preserving techniques affect the utility of generated data.
+By studying these models side‑by‑side, we aim to shed light on:
+\begin{itemize}[itemsep=0.5ex, topsep=0.5ex]
+  \item The inherent privacy–performance trade‑off in GAN‑based synthetic data generation,
+  \item Practical pathways for generating high‑fidelity synthetic data in sensitive domains without centralizing raw data,
+  \item The impact of federated aggregation strategies on both convergence and empirical privacy protection.
 \end{itemize}
 
-\section{Existing Work and Limitations}
+\section{Related Work}
 
 Recent efforts have explored multiple strategies for embedding GANs[2] within decentralized training frameworks[3], yielding a diverse set of FedGAN architectures. MDGAN[1] presented the idea of a single, centralized generator broadcasting to clients, each hosting its own discriminator; this split allows the generator to benefit from varied local feedback while keeping raw data private. Building on that, FedGAN[4] adopts fully local generator–discriminator pairs and periodically synchronizes their parameters via a central server, striking a balance between model diversity and convergence stability.To support privacy guarantees, follow-up work has introduced formal protections. DPFedAVGGAN[5] integrates user-level differential privacy into the federated averaging step, adding calibrated noise to model updates so that sensitive training examples cannot be reverse‑engineered. Private FL‑GAN[6] further refines this by embedding privacy controls directly into the GAN training loop, ensuring that both generator and discriminator updates adhere to a prescribed privacy budget.
 
 Despite these new architectures, several gaps remain. Most studies focus on image data, with limited application to tabular[9] or time-series domains. While DP is commonly used, empirical evaluations under privacy attacks remain sparse. Scalability in cross-device settings is hindered by communication overhead, and handling non-IID data remains challenging. Methods like FeGAN[7] and Universal Aggregation[8] attempt to address heterogeneity, but broader validation and benchmarking are still lacking.
 
-\section{Proposed Solution}
-
-To investigate the trade-off between generative performance and privacy in federated learning, we will train and evaluate two models: a centralized GAN and a federated GAN, using existing, well-established GAN architectures. Both models will be trained on the same novel dataset, chosen specifically for its relevance to privacy-sensitive applications.
-
-Rather than developing new architectures, we aim to isolate the effect of the training paradigm (federated vs. centralized) by keeping the model design consistent. We will assess the models using standard generative metrics such as Frechet Inception Distance (FID) for image realism and Inception Score (IS) for class diversity.
-
-In the federated setup, we will explore various aggregation strategies—including FedAvg, FedProx, and PreFed-GAN—to evaluate their impact on both performance and privacy. Additionally, we plan to evaluate each model’s robustness to privacy attacks (e.g., membership inference) to better understand the privacy-preserving capabilities of each training approach.
-
 \section{Dataset}
 The HAM10000 (“Human Against Machine with 10,000 dermatoscopic images”) dataset comprises a diverse collection of 10,015 dermatoscopic images of pigmented skin lesions—spanning seven diagnostic categories (melanoma, nevus, basal cell carcinoma, actinic keratosis, benign keratosis, dermatofibroma, and vascular lesions)—captured from multiple clinical centers worldwide. Each image is accompanied by expert-validated ground‐truth labels and extensive patient metadata (age, sex, lesion localization), making HAM10000 uniquely rich for both supervised and generative modeling. From a privacy standpoint, dermatoscopic images are highly sensitive: they can reveal personally identifiable features and carry significant risk if misused or leaked, thereby motivating strict data‐governance practices that naturally align with a federated learning paradigm. Despite its clear relevance, HAM10000 remains largely untapped in federated‐GAN research, where the majority of work continues to rely on generic object or face datasets (e.g., CIFAR, CelebA) that lack medical complexity and realistic non-IID client distributions. In this study, we leverage HAM10000 to perform a controlled empirical comparison of federated and non-federated (centralized) GANs under identical experimental conditions—partitioning images by acquisition site to simulate real-world clinical heterogeneity—thereby demonstrating how privacy‐preserving federated GANs can generate high-fidelity synthetic dermatoscopic images without ever centralizing raw patient data.
 
 \section{Method}
+To investigate the trade-off between generative performance and privacy in federated learning, we train and evaluate two models—a centralized GAN and a federated GAN—using the architectures described below on the HAM10000 dataset. We employ federation of the GAN discriminator by utilizing Universal Aggregation while keeping all other design elements identical. By keeping generator and discriminator designs identical across both paradigms, we isolate the effect of federated vs.\ centralized training. We assess generative quality via Fréchet Inception Distance (FID) and Inception Score (IS), and privacy leakage via the membership‑inference attack outlined below.
 
 \subsection{GAN}
 The original GAN[2] consists of two networks: Generator and Discriminator, and both G and D could be a non-linear mapping function, such as a multi-layer perceptron. Generator G captures the data distribution, while discriminator D estimates the probability that a sample came from the training data rather than G.
@@ -138,7 +128,7 @@ To adapt UA to use conditional GAN, the odds value of $D_{ua}$ needs to be chang
 The $D_{ua}(x|y)$, and the update of $G$ and $D_j$ need to be adjusted accordingly.
 
 
-\section{Evaluation and Metrics}
+\subsection{Evaluation and Metrics}
 In our evaluation framework, we employ a \textbf{membership-inference attack (MIA)} to quantify the extent to which a trained generator $G$ inadvertently memorizes and leaks information about its training set $\mathcal{D}_{\mathrm{train}}$.At its core, the membership-inference metric evaluates a model's tendency to ``memorize'' individual training samples by measuring how distinguishable those samples are from unseen data. When an adversary achieves a high true-positive rate (TPR) at the same false-positive rate (FPR) (or, equivalently, a large $\lvert\mathrm{TPR} - \mathrm{FPR}\rvert$ advantage), it implies that the generator's outputs for training examples lie in regions of the data manifold that are noticeably different—either in likelihood under the discriminator or in some other feature space—than outputs for non-training examples. In other words, memorization creates ``fingerprints'' that the adversary can exploit. Conversely, if the model generalizes well and does not overfit, its behavior on training and non-training samples becomes statistically indistinguishable, driving the membership advantage toward zero ($\mathrm{Adv}_{\mathcal{A}}\approx 0$) and the ROC AUC toward 0.5—equivalent to a random guess. Thus, lower membership-inference performance directly corresponds to stronger empirical privacy protection.\\
 Concretely, an adversary $\mathcal{A}$ is given a sample $x$ (either drawn from $\mathcal{D}_{\mathrm{train}}$ or from an unseen hold-out set $\mathcal{D}_{\mathrm{test}}$) and produces a binary decision
 \begin{align}
@@ -169,24 +159,69 @@ To compare FedGAN against a conventionally trained Non-Federated GAN, we apply t
 \end{align}
 with corresponding decreases in $\mathrm{TPR}-\mathrm{FPR}$ and peak ROC performance. By reporting these metrics side-by-side—together with confidence intervals over multiple random seeds—we will obtain a principled, quantitative assessment of how federated training mitigates membership leakage, thereby providing strong empirical evidence that FedGAN offers enhanced privacy guarantees relative to Non-Federated GAN.
 
-\section{Novelty and Significance}
-Our contributions include:
+\subsection{Training and Assessment}
+
+We train both the centralized and federated GAN models under identical architectural and optimization settings to isolate the effect of the training paradigm. For each model, we use the following strategy:
+\begin{itemize}[itemsep=0.5ex, topsep=0.5ex]
+  \item \textbf{Optimizer}: Adam with learning rate $2\times10^{-4}$, $\beta_{1}=0.5$, $\beta_{2}=0.999$.
+  \item \textbf{Batch size}: 64 samples per update.
+  \item \textbf{Latent dimension}: 128–dimensional noise vector $z\!\sim\!\mathcal{N}(0,I)$.
+  \item \textbf{Centralized GAN}: trained for 200 epochs on the full dataset.
+  \item \textbf{Federated GAN}: simulated over $K=10$ clients, each round comprising $E=2$ local epochs; global aggregation via FedAvg (with comparisons to FedProx and PreFed‑GAN). We run $R=100$ communication rounds, randomly selecting 5 clients per round.
+  \item \textbf{Random seeds}: three independent runs per configuration to estimate variance.
+\end{itemize}
+
+\medskip
+
+\noindent\textbf{Performance Assessment.} We evaluate generative quality and privacy leakage as follows:
+\begin{enumerate}[itemsep=0.5ex, topsep=0.5ex]
+  \item \textbf{Image quality}: compute Fréchet Inception Distance (FID) and Inception Score (IS) on a 10\,000‑sample hold‑out set.
+  \item \textbf{Privacy leakage}: execute the membership‑inference attack described in Section 4.3, reporting membership advantage $\mathrm{Adv}_{\mathcal{A}}$, attack accuracy $\mathrm{Acc}_{\mathcal{A}}$, and ROC AUC over train vs.\ test samples.
+  \item \textbf{Statistical reporting}: for each metric, report the mean ± one standard deviation across runs, and 95\% confidence intervals via bootstrap resampling.
+  \item \textbf{Convergence analysis}: track discriminator and generator losses per epoch/round to compare stability and training dynamics.
+\end{enumerate}
+\noindent The combined assessment yields a direct, quantitative comparison of centralized and federated training in terms of both synthesis fidelity and empirical privacy protection.
+
+
+\section{Discussion}
+Our novel contributions include:
 \begin{itemize}
   \item Use of an existing, underutilized dataset for evaluating generative models in privacy-sensitive settings.
   \item Direct empirical comparison of federated and non-federated (centralized) GANs under identical experimental conditions.
   \item Focused assessment of privacy-preserving qualities of both model types, including vulnerability to inference attacks.
   \item Quantitative evaluation of trade-offs between privacy and generative performance.
 \end{itemize}
-This study will provide practical insights into how well federated approaches preserve privacy and it's affect on model performance which can inform appropriate deployment choices for different applications.
 
+\medskip
+
+\noindent\textbf{Advantages:}
+\begin{itemize}
+  \item \emph{Enhanced privacy}: raw data never leaves client devices, reducing risk of sensitive information leakage.
+  \item \emph{Distributed scalability}: leverages computation across multiple clients, alleviating central server bottlenecks.
+  \item \emph{Flexibility in aggregation}: supports FedAvg, FedProx, PreFed‑GAN, enabling adaptation to diverse client heterogeneity.
+  \item \emph{Empirical validation}: demonstrates that federated training can approach centralized FID and IS metrics while lowering membership‑inference leakage.
+\end{itemize}
+
+\medskip
+
+\noindent\textbf{Limitations:}
+\begin{itemize}
+  \item \emph{Communication overhead}: frequent model exchanges incur network costs that may be prohibitive in low‑bandwidth settings.
+  \item \emph{Non‑IID data challenges}: client heterogeneity can slow convergence or bias the global model toward dominant distributions.
+  \item \emph{Convergence stability}: federated training often requires careful tuning of learning rates and aggregation intervals to avoid oscillations.
+  \item \emph{Client resource requirements}: local training demands compute and memory on client devices, which may be limited in real deployments.
+\end{itemize}
+
+\medskip
+
+\noindent Overall, this study provides practical insights into how federated GANs can be deployed in sensitive domains, highlighting both their promise for privacy preservation and the technical challenges that must be addressed for robust, real-world adoption.
 \section{Tentative Timeline}
 
 \begin{itemize}
-    \item Weeks 1–2: Review related work and refine understanding of architectures
-    \item Week 3: Develop pipeline and establish FL and non-FL baselines
-    \item Weeks 4–5: Implement Federated GAN and train Centralized GAN
-    \item Week 6: Conduct privacy attacks and analyze results
-    \item Week 7: Write and finalize documentation and report
+    \item Week 7: Implement centralized GAN and federated GAN architectures
+    \item Week 8: Train centralized GAN and federated GAN on HAM10000 dataset
+    \item Week 9: Evaluate generative quality and privacy leakage
+    \item Week 10: Write and finalize documentation and report
 \end{itemize}
 
 
