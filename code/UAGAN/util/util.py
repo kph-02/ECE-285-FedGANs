@@ -13,15 +13,26 @@ def tensor2im(input_image, imtype=np.uint8):
         input_image (tensor) --  the input image tensor array
         imtype (type)        --  the desired type of the converted numpy array
     """
+    # Handle empty tensors
+    if input_image is None or (isinstance(input_image, torch.Tensor) and input_image.numel() == 0):
+        print("Warning: Empty tensor encountered in visualization")
+        # Return a small blank RGB image (32x32)
+        return np.zeros((32, 32, 3), dtype=imtype)
+        
     if not isinstance(input_image, np.ndarray):
         if isinstance(input_image, torch.Tensor):  # get the data from a variable
             image_tensor = input_image.data
+            # Check tensor size before indexing
+            if image_tensor.size(0) == 0:
+                print("Warning: Tensor has zero batch size")
+                return np.zeros((32, 32, 3), dtype=imtype)
+            # Ensure tensor is on CPU before numpy conversion
+            image_numpy = image_tensor[0].cpu().float().numpy()  # convert it into a numpy array
+            if image_numpy.shape[0] == 1:  # grayscale to RGB
+                image_numpy = np.tile(image_numpy, (3, 1, 1))
+            image_numpy = (np.transpose(image_numpy, (1, 2, 0)) + 1) / 2.0 * 255.0  # post-processing: tranpose and scaling
         else:
             return input_image
-        image_numpy = image_tensor[0].cpu().float().numpy()  # convert it into a numpy array
-        if image_numpy.shape[0] == 1:  # grayscale to RGB
-            image_numpy = np.tile(image_numpy, (3, 1, 1))
-        image_numpy = (np.transpose(image_numpy, (1, 2, 0)) + 1) / 2.0 * 255.0  # post-processing: tranpose and scaling
     else:  # if it is a numpy array, do nothing
         image_numpy = input_image
     return image_numpy.astype(imtype)
