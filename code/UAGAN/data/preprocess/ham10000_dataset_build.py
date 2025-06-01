@@ -120,12 +120,12 @@ def build_HAM10000_split_by_site_h5(data_dir, save_dir):
         'vasc': 6,   # Vascular lesion
     }
     
-    # Get unique sites
-    sites = metadata['dataset'].unique()
+    # Get unique acquisition sites instead of 'dataset'
+    sites = metadata['acq_site'].unique()
     
     # Create a file for each site
     for site in sites:
-        site_metadata = metadata[metadata['dataset'] == site]
+        site_metadata = metadata[metadata['acq_site'] == site]
         site_file = h5py.File(os.path.join(save_dir, f'train_HAM10000_site_{site}.h5'), 'w')
         
         print(f'Processing site {site}')
