@@ -23,6 +23,9 @@ class Ham10000Dataset(BaseDataset):
             opt (Option class) -- stores all the experiment flags
         """
         BaseDataset.__init__(self, opt)
+        
+        self.isTrain = opt.isTrain if hasattr(opt, 'isTrain') else True
+        
         self.h5_path = os.path.join(opt.ham10000_data_dir, 
                                    'train_HAM10000.h5' if self.isTrain else 'test_HAM10000.h5')
         self.h5_file = h5py.File(self.h5_path, 'r')
@@ -52,16 +55,15 @@ class Ham10000Dataset(BaseDataset):
         # Convert to tensor and normalize
         img_tensor = self.transform(img_array)
         
-        # Create data dictionary
+        # Create data dictionary with label as 'A' and image as 'B'
         return {
-            'A': img_tensor,  # Main image
-            'B': img_tensor,  # Same image (for compatibility if needed)
+            'A': torch.tensor(label, dtype=torch.long),  # Class label for conditioning
+            'B': img_tensor,  # Image tensor
             'A_paths': f"{self.h5_path}:{key}",
             'B_paths': f"{self.h5_path}:{key}",
-            'label': label,
+            'label': label,  # Original label
             'index': index,
         }
-
     def __len__(self):
         """Return the total number of images in the dataset."""
         return len(self.keys)

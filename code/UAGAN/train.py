@@ -24,6 +24,7 @@ from options.train_options import TrainOptions
 from data import create_dataset
 from models import create_model
 from util.visualizer import Visualizer
+import torch
 
 if __name__ == '__main__':
     opt = TrainOptions().parse()   # get training options
@@ -32,6 +33,31 @@ if __name__ == '__main__':
     print('The number of training images = %d' % dataset_size)
 
     model = create_model(opt)      # create a model given opt.model and other options
+    # After model = create_model(opt)
+    if opt.model == 'dcgan':
+        # Ensure tensors are on the right device
+        if hasattr(model, 'onehot'):
+            model.onehot = model.onehot.to(model.device)
+        if hasattr(model, 'fill'):
+            model.fill = model.fill.to(model.device)
+        # Fix the set_input method to properly handle the data
+        original_set_input = model.set_input
+        def patched_set_input(self, input):
+            original_set_input(input)
+            # Make sure real_A is a proper integer tensor for indexing
+            if hasattr(self, 'real_A') and not self.real_A.dtype in [torch.long, torch.int, torch.uint8, torch.bool]:
+                # Check if real_A is class labels or needs to be converted
+                if hasattr(input, 'A_label'):
+                    # If A_label exists, use it directly
+                    self.real_A = input['A_label'].to(self.device).long()
+                else:
+                    # Otherwise try to convert real_A to long
+                    self.real_A = self.real_A.long()
+        
+        # Apply the patch
+        import types
+        model.set_input = types.MethodType(patched_set_input, model)
+
     model.setup(opt)               # regular setup: load and print networks; create schedulers
     visualizer = Visualizer(opt)   # create a visualizer that display/save images and plots
     total_iters = 0                # the total number of training iterations

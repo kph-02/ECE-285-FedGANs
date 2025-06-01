@@ -53,7 +53,7 @@ def build_HAM10000_h5(data_dir, save_dir):
         
         # Load and process image
         img = Image.open(img_path).convert('RGB')
-        img = img.resize((64, 64))  # Resize to consistent dimensions
+        img = img.resize((32, 32))  # Resize to consistent dimensions
         img_array = np.array(img)
         
         # Get label
@@ -76,7 +76,9 @@ def build_HAM10000_h5(data_dir, save_dir):
         
         # Load and process image
         img = Image.open(img_path).convert('RGB')
-        img = img.resize((64, 64))  # Resize to consistent dimensions
+        
+        #img = img.resize((64, 64))  # Resize to consistent dimensions
+        img = img.resize((32, 32))  # Resize to consistent dimensions
         img_array = np.array(img)
         
         # Get label
@@ -140,7 +142,7 @@ def build_HAM10000_split_by_site_h5(data_dir, save_dir):
             
             # Load and process image
             img = Image.open(img_path).convert('RGB')
-            img = img.resize((64, 64))  # Resize to consistent dimensions
+            img = img.resize((32, 32))  # Resize to consistent dimensions
             img_array = np.array(img)
             
             # Get label
