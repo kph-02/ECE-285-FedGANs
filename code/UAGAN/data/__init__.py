@@ -13,6 +13,8 @@ See our template dataset class 'template_dataset.py' for more details.
 import importlib
 import torch.utils.data
 from data.base_dataset import BaseDataset
+from data.ham10000_multisite_dataset import Ham10000MultisiteDataset
+
 
 
 def find_dataset_using_name(dataset_name):
@@ -54,9 +56,39 @@ def create_dataset(opt):
         >>> from data import create_dataset
         >>> dataset = create_dataset(opt)
     """
-    data_loader = CustomDatasetDataLoader(opt)
-    dataset = data_loader.load_data()
-    return dataset
+    # Fix the conditional check - use == instead of is
+    if opt.dataset_mode == 'ham10000_multisite':  # Fix this comparison
+        # Create the custom dataset directly
+        custom_dataset = Ham10000MultisiteDataset(opt)
+        data_loader = torch.utils.data.DataLoader(
+            custom_dataset,
+            batch_size=opt.batch_size,
+            shuffle=not opt.serial_batches,
+            num_workers=int(opt.num_threads))
+        
+        # Create a wrapper with the same interface as CustomDatasetDataLoader
+        class SimpleDataLoaderWrapper:
+            def __init__(self, dataloader):
+                self.dataloader = dataloader
+            
+            def load_data(self):
+                return self
+            
+            def __len__(self):
+                return min(len(custom_dataset), opt.max_dataset_size)
+            
+            def __iter__(self):
+                for i, data in enumerate(self.dataloader):
+                    if i * opt.batch_size >= opt.max_dataset_size:
+                        break
+                    yield data
+        
+        return SimpleDataLoaderWrapper(data_loader)
+    else:
+        # Use the standard approach for other datasets
+        data_loader = CustomDatasetDataLoader(opt)
+        dataset = data_loader.load_data()
+        return dataset
 
 
 class CustomDatasetDataLoader():

@@ -52,32 +52,45 @@ class UAGANModel(BaseModel):
             opt (Option class)-- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
         BaseModel.__init__(self, opt)
-        # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
+
+        # Initialize onehot and fill tensors ONCE
+        self.onehot = torch.zeros(opt.n_class, opt.n_class)
+        self.onehot = self.onehot.scatter_(1, torch.arange(opt.n_class).view(opt.n_class, 1), 1).view(
+            opt.n_class, opt.n_class, 1, 1)
+        # Move onehot to the correct device immediately
+        self.onehot = self.onehot.to(self.device)
+        
+        self.fill = torch.zeros([opt.n_class, opt.n_class, opt.load_size, opt.load_size])
+        for i in range(opt.n_class):
+            self.fill[i, i, :, :] = 1
+        # Also move fill to the correct device
+        self.fill = self.fill.to(self.device)
+
+        # Rest of your initialization...
         self.loss_names = ['G_GAN_all', 'D_real_all', 'D_fake_all']
-        # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
+        # Specify images you want to save/display
         if self.isTrain:
             self.visual_names = ['fake_B_0', 'real_B_0', 'fake_B_1', 'real_B_1', 'fake_B_2', 'real_B_2', 'fake_B_3', 'real_B_3']
         else:
             self.visual_names = ['real_A', 'fake_B', 'real_B']
-        # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>
+        
+        # Networks and optimizers setup
         if self.isTrain:
             self.model_names = ['G', 'D']
-        else:  # during test time, only load G
+        else:
             self.model_names = ['G']
-        # define networks (both generator and discriminator)
+        
         self.netG = networks.define_G(opt.nz, opt.output_nc, opt.ngf, opt.netG, opt.norm,
-                                      not opt.no_dropout, opt.init_type, opt.init_gain, opt.n_class, self.gpu_ids)
+                                    not opt.no_dropout, opt.init_type, opt.init_gain, opt.n_class, self.gpu_ids)
 
         if self.isTrain:
             self.netD = []
             for i in range(10):
                 self.netD.append(networks.define_D(opt.output_nc, opt.ndf, opt.netD,
-                                          opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, opt.n_class, self.gpu_ids))
+                                        opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, opt.n_class, self.gpu_ids))
 
-        if self.isTrain:
-            # define loss functions
+            # Loss functions and optimizers
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
-            # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr_G, betas=(opt.beta1, 0.999))
             self.optimizer_D = []
             for i in self.netD:
@@ -91,13 +104,6 @@ class UAGANModel(BaseModel):
         print(self.netG)
         if self.isTrain:
             print(self.netD[0])
-            
-        self.onehot = torch.zeros(opt.n_class, opt.n_class)
-        self.onehot = self.onehot.scatter_(1, torch.arange(opt.n_class).view(opt.n_class, 1), 1).view(
-            opt.n_class, opt.n_class, 1, 1)
-        self.fill = torch.zeros([opt.n_class, opt.n_class, opt.load_size, opt.load_size])
-        for i in range(opt.n_class):
-            self.fill[i, i, :, :] = 1
 
     def set_input(self, input):
         """Unpack input data from the dataloader and perform necessary pre-processing steps.
@@ -113,6 +119,8 @@ class UAGANModel(BaseModel):
             self.real_B = []   # images
             self.image_paths = []
             for i in range(10):
+                #print("Available keys in input:", input.keys())
+                #print("Looking for key:", 'A_' + str(i))
                 self.real_A.append(input['A_' + str(i)].to(self.device))
                 self.real_B.append(input['B_' + str(i)].to(self.device))
                 self.image_paths.append(input['A_paths_' + str(i)])

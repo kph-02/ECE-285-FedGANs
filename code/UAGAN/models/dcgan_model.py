@@ -83,7 +83,7 @@ class DCGANModel(BaseModel):
         print(self.netG)
         if self.isTrain:
             print(self.netD)
-
+        
         self.onehot = torch.zeros(opt.n_class, opt.n_class)
         self.onehot = self.onehot.scatter_(1, torch.arange(opt.n_class).view(opt.n_class, 1), 1).view(
             opt.n_class, opt.n_class, 1, 1)
@@ -111,7 +111,6 @@ class DCGANModel(BaseModel):
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
-
         noise = torch.randn(self.real_A.size(0), self.opt.nz, 1, 1).to(self.device)
         onehot_label = self.onehot[self.real_A].to(self.device)
         self.fake_B = self.netG(noise, onehot_label)  # label as onehot encoding in G
@@ -120,14 +119,33 @@ class DCGANModel(BaseModel):
         self.fake_B_1 = self.fake_B[1:2]
         self.fake_B_2 = self.fake_B[2:3]
         self.fake_B_3 = self.fake_B[3:4]
-
     def test(self):
+        """Run forward pass during testing with proper batch size handling."""
         with torch.no_grad():
-            noise = torch.randn(self.real_A.size(0), self.opt.nz, 1, 1).to(self.device)
-            onehot_label = self.onehot[self.real_A].to(self.device)
-            self.fake_B = self.netG(noise, onehot_label)  # label as onehot encoding in G
-            self.compute_visuals()
-
+            # Ensure model is in eval mode
+            self.netG.eval()
+            
+            # Move tensors to device - do this only once
+            self.onehot = self.onehot.to(self.device)
+            self.real_A = self.real_A.to(self.device)
+            
+            # Handle batch size issues for BatchNorm
+            batch_size = self.real_A.size(0)
+            if batch_size == 1:
+                # For batch size 1, duplicate samples to avoid BatchNorm issues
+                repeated_real_A = self.real_A.repeat(4, 1) 
+                noise = torch.randn(4, self.opt.nz, 1, 1).to(self.device)
+                onehot_label = self.onehot[repeated_real_A]
+                
+                # Generate with larger batch size then take first sample
+                fake_B_batch = self.netG(noise, onehot_label)
+                self.fake_B = fake_B_batch[0:1]
+            else:
+                # Normal case with sufficient batch size
+                noise = torch.randn(batch_size, self.opt.nz, 1, 1).to(self.device)
+                onehot_label = self.onehot[self.real_A]
+                self.fake_B = self.netG(noise, onehot_label)
+                
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""
         # Fake; stop backprop to the generator by detaching fake_B
