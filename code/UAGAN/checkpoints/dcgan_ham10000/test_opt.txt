@@ -1,0 +1,44 @@
+----------------- Options ---------------
+             aspect_ratio: 1.0                           
+               batch_size: 1                             
+          checkpoints_dir: ./checkpoints                 
+                crop_size: 32                            
+                 dataroot: datasets/HAM10000_processed   	[default: None]
+             dataset_mode: ham10000                      	[default: unaligned]
+                direction: AtoB                          
+          display_winsize: 64                            
+                    epoch: 200                           	[default: latest]
+                     eval: False                         
+                  gpu_ids: 0                             
+        ham10000_data_dir: ./datasets/HAM10000_processed 
+                init_gain: 0.02                          
+                init_type: normal                        
+                 input_nc: 3                             
+                  isTrain: False                         	[default: None]
+                load_iter: 0                             	[default: 0]
+                load_size: 32                            
+         max_dataset_size: inf                           
+                    model: dcgan                         	[default: test]
+                  n_class: 10                            
+               n_layers_D: 3                             
+                     name: dcgan_ham10000                	[default: experiment_name]
+                      ndf: 64                            
+                     netD: cDCGANResnet                  
+                     netG: cDCGANResnet                  
+                      ngf: 64                            
+               no_dropout: False                         
+                  no_flip: False                         
+                     norm: batch                         
+                    ntest: inf                           
+                 num_test: inf                           
+              num_threads: 4                             
+                       nz: 128                           
+                output_nc: 3                             
+                    phase: test                          
+               preprocess: resize_and_crop               
+              results_dir: ./results/                    
+           serial_batches: False                         
+                   suffix:                               
+       take_model_average: False                         
+                  verbose: False                         
+----------------- End -------------------

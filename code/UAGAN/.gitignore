@@ -4,7 +4,6 @@
 /data/fashionMNIST/
 /data/MNIST_*/
 
-/checkpoints/
 /results/
 
 /.idea/
