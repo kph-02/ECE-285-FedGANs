@@ -1,4 +1,4 @@
-# Federated GAN with Privacy Guarantees on HAM10000
+# Federated GAN on HAM10000
 
 This project explores training a **Federated GAN (UAGAN)** on a **privacy-sensitive medical imaging dataset (HAM10000)**, providing privacy guarantees while maintaining competitive performance. A **Centralized DCGAN** is also trained for fair comparison using identical generator and discriminator architectures.
 
