@@ -262,6 +262,16 @@ Our novel contributions include:
 \noindent Overall, this study provides practical insights into how federated GANs can be deployed in sensitive domains, highlighting both their promise for privacy preservation and the technical challenges that must be addressed for robust, real-world adoption.
 
 
+
+\section{Conclusions}
+In this work, we have conducted a empirical comparison of the Federated and Centralized GANs using the HAM10000 image dataset, with a focus on both generative performance and privacy preservation. 
+
+Our results show that the Universal Aggregation GAN (UAGAN) not only outperforms the traditional DCGAN in generative quality, measured by the FID Score and Inception Score, but also obtains higher quality in privacy protection given that UAGAN exhibits attack AUC and accuracy values close to random guessing, suggesting that local discriminators do not overfit to private subsets and that raw data remains protected throughout the training process.
+
+These findings highlight the practical viability of federated GANs for generating high-fidelity synthetic data in sensitive domains such as medical imaging. While challenges such as communication overhead, non-IID data distributions, and convergence stability remain, our study provides evidence that federated GANs can achieve competitive generative performance while offering robust privacy guarantees. Future work should focus on addressing these limitations to further enhance the scalability and reliability of federated GANs in real-world applications.
+
+
+
 \section*{References}
 
 {
