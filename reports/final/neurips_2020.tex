@@ -11,6 +11,8 @@
 \usepackage{titlesec}
 \usepackage{enumitem}
 \usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{subcaption} 
 \title{Federated GANs: A Comparative Study of Privacy and Performance}
 
 \author{%
@@ -217,6 +219,117 @@ The HAM10000 (“Human Against Machine with 10,000 dermatoscopic images”) data
 
 
 \subsection{Results}
+We present the empirical evaluation of UAGAN and DCGAN in terms of both generative performance and privacy leakage. The models are assessed using standard generative metrics—Fréchet Inception Distance (FID) and Inception Score (IS)—as well as Membership Inference Attacks (MIA) to measure privacy risk. All experiments are conducted under identical conditions for fair comparison.\\
+\\
+\textbf{Fréchet Inception Distance (FID):}
+\begin{itemize}
+    \item \textbf{DCGAN:} 76.686
+    \item \textbf{UAGAN:} 26.085
+\end{itemize}
+
+\textbf{Inception Score (IS):}
+\begin{itemize}
+    \item \textbf{DCGAN:} 1.062 $\pm$ 0.001
+    \item \textbf{UAGAN:} 1.072 $\pm$ 0.006
+\end{itemize}
+
+\subsection{Membership Inference Attack (MIA) Results}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Metric} & \textbf{DCGAN} & \textbf{UAGAN} \\
+\hline
+Member Samples        & 32     & 32     \\
+Non-Member Samples    & 32     & 32     \\
+AUC                   & 0.5776 & 0.4116 \\
+Accuracy              & 0.6562 & 0.5625 \\
+Optimal Threshold     & 0.6224 & 0.6225 \\
+True Positive Rate    & 0.9062 & 0.7812 \\
+False Positive Rate   & 0.5938 & 0.6562 \\
+\hline
+\end{tabular}
+\vspace{0.9em}
+\caption{Membership Inference Attack metrics for DCGAN and UAGAN.}
+\label{tab:mia_results}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{dcgan_loss_curves_subplot.png}
+        \caption{Loss Curves for DCGAN}
+        \label{fig:dcgan_loss}
+    \end{minipage} \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{uagan_loss_curves_subplot.png}
+        \caption{Loss Curves for UAGAN}
+        \label{fig:uagan_loss}
+    \end{minipage}
+\end{figure}
+
+ The DCGAN shows stable convergence behavior, with the generator and discriminator losses settling into a narrow range after the initial epochs. In contrast, UAGAN exhibits significantly higher fluctuations across all loss components (generator, discriminator real, and discriminator fake losses). This instability is attributed to the added complexity introduced by uncertainty modeling in UAGAN, which can amplify gradient variance and make the adversarial training dynamics harder to balance. The noisy loss patterns suggest that UAGAN requires more careful hyperparameter tuning and stabilization strategies to achieve consistent training performance comparable to standard GAN frameworks.
+
+\begin{figure}[htbp]
+    \centering
+    % Left side for DCGAN images
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \captionsetup{labelformat=empty}  
+        \includegraphics[width=\linewidth]{class_0_Actinic_keratoses.png}
+        \caption{Class 0 Actinic keratoses lesions}
+        
+        \includegraphics[width=\linewidth]{class_1_Basal_cell_carcinoma.png}
+        \caption{Class 1 Basal cell carcinoma lesions}
+        
+        \includegraphics[width=\linewidth]{class_2_Benign_keratosis.png}
+        \caption{Class 2 Benign keratosis lesions}
+        
+        \includegraphics[width=\linewidth]{class_3_Dermatofibroma.png}
+        \caption{Class 3 Dermatofibroma lesions}
+        
+        \includegraphics[width=\linewidth]{class_4_Melanoma.png}
+        \caption{Class 4 Melanoma lesions}
+        
+        \includegraphics[width=\linewidth]{class_5_Melanocytic_nevi.png}
+        \caption{Class 5 Melanocytic nevi lesions}
+        
+        \includegraphics[width=\linewidth]{class_6_Vascular_lesions.png}
+        \caption{Class 6 Vascular lesions}
+    \end{minipage} 
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \captionsetup{labelformat=empty} 
+        \includegraphics[width=\linewidth]{uagan-class_0_Actinic_keratoses.png}
+        \caption{Class 0 Actinic keratoses lesions}
+        
+        \includegraphics[width=\linewidth]{uagan-class_1_Basal_cell_carcinoma.png}
+        \caption{Class 1 Basal cell carcinoma lesions}
+        
+        \includegraphics[width=\linewidth]{uagan-class_2_Benign_keratosis.png}
+        \caption{Class 2 Benign keratosis lesions}
+        
+        \includegraphics[width=\linewidth]{uagan-class_3_Dermatofibroma.png}
+        \caption{Class 3 Dermatofibroma lesions}
+        
+        \includegraphics[width=\linewidth]{uagan-class_4_Melanoma.png}
+        \caption{Class 4 Melanoma lesions}
+        
+        \includegraphics[width=\linewidth]{uagan-class_5_Melanocytic_nevi.png}
+        \caption{Class 5 Melanocytic nevi lesions}
+
+        \includegraphics[width=\linewidth]{uagan-class_6_Vascular_lesions.png}
+        \caption{Class 6 Vascular lesions}
+    \end{minipage}
+    \refstepcounter{figure}
+    \setcounter{figure}{2}
+    \caption{Generated Images of Lesions for DCGAN and UAGAN Models: The images show various types of skin lesions across different classes generated by both DCGAN and UAGAN.}
+    \label{fig:comparison_dcgan_uagan}
+\end{figure}
 
 \subsection{Analysis of Results}
 
@@ -270,7 +383,8 @@ Our results show that the Universal Aggregation GAN (UAGAN) not only outperforms
 
 These findings highlight the practical viability of federated GANs for generating high-fidelity synthetic data in sensitive domains such as medical imaging. While challenges such as communication overhead, non-IID data distributions, and convergence stability remain, our study provides evidence that federated GANs can achieve competitive generative performance while offering robust privacy guarantees. Future work should focus on addressing these limitations to further enhance the scalability and reliability of federated GANs in real-world applications.
 
-
+\section{Appendix}
+The implementation code for our work is available at {\it https://github.com/kph-02/ECE-285-FedGANs.git} and the HAM10000 dataset used in our experiments can be accessed at {\it https://www.kaggle.com/api/v1/datasets/download/kmader/skin-cancer-mnist-ham10000}.
 
 \section*{References}
 
@@ -294,14 +408,15 @@ These findings highlight the practical viability of federated GANs for generatin
 
 [9] Maliakel, T., Rajendran, J., Lalitha, A., \& Krishnan, R.\ (2024) FLIGAN: Federated Learning of Imbalanced Tabular Data Using GANs. {\it arXiv preprint arXiv:2403.08744}.
 
-[10] A. Golda et al., (2024) Privacy and Security Concerns in Generative AI: A Comprehensive Survey,". In \it{IEEE Access, vol. 12, pp. 48126-48144}
+[10] A. Golda et al., (2024) Privacy and Security Concerns in Generative AI: A Comprehensive Survey,". In {\it IEEE Access, vol. 12, pp. 48126-48144}
 
-[11] Zhang, Y., Qu, H., Chang, Q., Liu, H., Metaxas, D., & Chen, C. (2021). Training federated GANs with theoretical guarantees: A universal aggregation approach. arXiv preprint arXiv:2102.04655.
+[11] Zhang, Y., Qu, H., Chang, Q., Liu, H., Metaxas, D., & Chen, C. (2021). Training federated GANs with theoretical guarantees: A universal aggregation approach. {\it arXiv preprint arXiv:2102.04655.}
 
-[12] Mirza, M., & Osindero, S. (2014). Conditional generative adversarial nets. arXiv preprint arXiv:1411.1784.
+[12] Mirza, M., & Osindero, S. (2014). Conditional generative adversarial nets. {\it arXiv preprint arXiv:1411.1784.}
+
+[13] Tschandl, P., Rosendahl, C., & Kittler, H. (2018). The HAM10000 dataset, a large collection of multi-source dermatoscopic images of common pigmented skin lesions. Scientific Data, 5, 180161. {\it https://doi.org/10.1038/sdata.2018.161}
+
 }
-
-
 
 
 \end{document}
