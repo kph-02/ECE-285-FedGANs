@@ -42,6 +42,12 @@ In terms of privacy, membership inference attacks confirm that UAGAN leaks far l
 Together, these findings validate that federated training with Universal Aggregation not only enhances image fidelity and diversity on non-IID medical data but also strengthens privacy guarantees. The dramatic FID improvement confirms better coverage of rare lesion classes, while the reduced MIA performance demonstrates that local discriminators do not overfit to their private subsets, effectively protecting patient data.
 
 
+### Examples of Generated Images
+
+<img width="552" alt="Screenshot 2025-06-29 at 4 21 07 PM" src="https://github.com/user-attachments/assets/73159cd0-0098-4255-8509-628790bac32e" />
+
+
+
 
 
 
